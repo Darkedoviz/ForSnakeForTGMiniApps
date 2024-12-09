@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: #282c34;
+            color: white;
+        }
+
+        #game-board {
+            display: grid;
+            grid-template-columns: repeat(20, 20px);
+            grid-template-rows: repeat(20, 20px);
+            gap: 1px;
+            background: #444;
+        }
+
+        .cell {
+            width: 20px;
+            height: 20px;
+            background: #555;
+        }
+
+        .snake {
+            background: limegreen;
+        }
+
+        .food {
+            background: red;
+        }
+
+        .info {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <ul>
+        <span>
+            <li><a href="задание 1-5.html">задание 1-5</a></li> 
+            <li><a href="Задание 6.html">задание 6</a></li> 
+            <li><a href="Задание 7.html">Задание 7</a></li>
+            <li><a href="Задание 8.html">Задание 8</a></li>
+            <li><a href="Задание 9.1.html">Задание 9.1</a></li>
+            <li><a href="Задание 9.2.html">Задание 9.2</a></li>
+            <li><a href="Игра 1(Змейка).html">Змейка</a></li>
+        </span>
+    </ul>
+
+
+
+    <div>
+        <div id="game-board"></div>
+        <div class="info">
+            <p>Уровень: <span id="level">1</span></p>
+        </div>
+    </div>
+
+    <script>
+        const boardSize = 20;
+        const board = document.getElementById('game-board');
+        const levelDisplay = document.getElementById('level');
+
+        let snake = [{ x: 10, y: 10 }];
+        let direction = { x: 0, y: 0 }; 
+        let nextDirection = { x: 0, y: 0 };
+        let food = { x: Math.floor(Math.random() * boardSize), y: Math.floor(Math.random() * boardSize) };
+        let level = 1;
+        let speed = 200;
+        let isGameRunning = false; 
+
+        
+        for (let i = 0; i < boardSize * boardSize; i++) {
+            const cell = document.createElement('div');
+            cell.classList.add('cell');
+            board.appendChild(cell);
+        }
+
+        const cells = document.querySelectorAll('.cell');
+
+
+        function drawSnake() {
+            cells.forEach(cell => cell.classList.remove('snake'));
+            snake.forEach(segment => {
+                const index = segment.y * boardSize + segment.x;
+                cells[index].classList.add('snake');
+            });
+        }
+
+        function drawFood() {
+            cells.forEach(cell => cell.classList.remove('food'));
+            const index = food.y * boardSize + food.x;
+            cells[index].classList.add('food');
+        }
+
+        function updateSnake() {
+            if (!isGameRunning) return; 
+
+            direction = nextDirection;
+
+            const head = { x: snake[0].x + direction.x, y: snake[0].y + direction.y };
+
+            
+            if (snake.some(segment => segment.x === head.x && segment.y === head.y)) {
+                alert('Игра окончена! Вы достигли уровня: ' + level);
+                resetGame();
+                return;
+            }
+
+
+            snake.unshift(head);
+
+
+            if (head.x === food.x && head.y === food.y) {
+                level++;
+                speed = Math.max(50, speed - 10);
+                food = { x: Math.floor(Math.random() * boardSize), y: Math.floor(Math.random() * boardSize) };
+            } else {
+                snake.pop();
+            }
+
+
+            if (head.x < 0 || head.x >= boardSize || head.y < 0 || head.y >= boardSize) {
+                alert('Игра окончена! Вы достигли уровня: ' + level);
+                resetGame();
+                return;
+            }
+
+            levelDisplay.textContent = level;
+        }
+
+        function resetGame() {
+            snake = [{ x: 10, y: 10 }];
+            direction = { x: 0, y: 0 };
+            nextDirection = { x: 0, y: 0 };
+            food = { x: Math.floor(Math.random() * boardSize), y: Math.floor(Math.random() * boardSize) };
+            level = 1;
+            speed = 200;
+            levelDisplay.textContent = level;
+            isGameRunning = false;
+        }
+
+        function gameLoop() {
+            updateSnake();
+            drawSnake();
+            drawFood();
+            setTimeout(gameLoop, speed);
+        }
+
+  
+        window.addEventListener('keydown', e => {
+            switch (e.key) {
+                case 'ArrowUp':
+                    if (direction.y === 0) nextDirection = { x: 0, y: -1 };
+                    break;
+                case 'ArrowDown':
+                    if (direction.y === 0) nextDirection = { x: 0, y: 1 };
+                    break;
+                case 'ArrowLeft':
+                    if (direction.x === 0) nextDirection = { x: -1, y: 0 };
+                    break;
+                case 'ArrowRight':
+                    if (direction.x === 0) nextDirection = { x: 1, y: 0 };
+                    break;
+            }
+            isGameRunning = true; 
+        });
+
+
+        drawSnake();
+        drawFood();
+        gameLoop();
+    </script>
+</body>
+</html>
